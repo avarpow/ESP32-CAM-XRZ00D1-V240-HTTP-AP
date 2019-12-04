@@ -22,7 +22,7 @@
 #include "esp_camera.h" // Camera driver (https://github.com/espressif/esp32-camera)
 #include "esp_timer.h" // For shot time measurements
 
-
+#include "servo_mpu6050.h"
 /* CONFIG Stuff */
 
 // WIFI config
@@ -352,9 +352,13 @@ void app_main(void)
      */
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &connect_handler, &server));
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &disconnect_handler, &server));
-
+    mcpwm_example_gpio_initialize();
+    xTaskCreate(echo_task, "uart_echo_task", 2048, NULL, 10, NULL);
+    xTaskCreate(show_data, "show_data", 2048, NULL, 10, NULL);
+    xTaskCreate(mcpwm_example_servo_control, "mcpwm_example_servo_control", 4096, NULL, 5, NULL);
     // Try camera capture (just for debug if shit happen)
     // ESP_LOGI(TAG, "CAMERA CAPTURE");
     // camera_capture();
+    
 }
     
